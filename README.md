@@ -15,6 +15,7 @@ NUM_ROUNDS -> Desired number of rounds
 DATASET -> 'multi_polarity_books', 'multi_polarity_kitchen', 'multi_polarity_dvd', 'multi_polarity_kitchen'
 PICK -> 'submodular' or 'random'
 Run the following with the desired number of rounds:
+
     mkdir out_comparing
 
     python generate_data_for_compare_classifiers.py -d DATASET -o out_comparing/ -k 10 -r NUM_ROUNDS
