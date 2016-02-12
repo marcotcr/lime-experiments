@@ -24,3 +24,5 @@ Run the following with the desired number of rounds:
         python compare_classifiers.py -d DATASET -o out_comparing/ -k 10 -n 10 -p PICK
 
 
+## Religion dataset:
+Available [here](https://github.com/marcotcr/lime-experiments/blob/master/religion_dataset.tar.gz)
