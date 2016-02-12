@@ -80,7 +80,7 @@ def main():
   for Z in range(args.num_rounds):
     exps1 = {}
     exps2 = {}
-    explainer_names = ['local', 'parzen', 'random', 'greedy', 'mutual']
+    explainer_names = ['lime', 'parzen', 'random', 'greedy', 'mutual']
     for expl in explainer_names:
       exps1[expl] = []
       exps2[expl] = []
@@ -144,7 +144,7 @@ def main():
       pp2.append(predict_probas2[i])
       true_labels.append(train_labels[i])
       exp, mean = local.explain_instance(dirty_train_vectors[i], 1, c1.predict_proba, args.num_features)
-      exps1['local'].append((exp, mean))
+      exps1['lime'].append((exp, mean))
 
       exp = parzen1.explain_instance(dirty_train_vectors[i], 1, c1.predict_proba, args.num_features, None) 
       mean = parzen1.predict_proba(dirty_train_vectors[i])[1]
@@ -159,7 +159,7 @@ def main():
 
       # Classifier 2
       exp, mean = local.explain_instance(dirty_train_vectors[i], 1, c2.predict_proba, args.num_features)
-      exps2['local'].append((exp, mean))
+      exps2['lime'].append((exp, mean))
 
       exp = parzen2.explain_instance(dirty_train_vectors[i], 1, c2.predict_proba, args.num_features, None) 
       mean = parzen2.predict_proba(dirty_train_vectors[i])[1]

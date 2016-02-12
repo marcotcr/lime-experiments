@@ -63,7 +63,7 @@ alternate=False):
     return submodular
     out = greedy(submodular, B)
     return out
-  if explainer in ['parzen', 'local']:
+  if explainer in ['parzen', 'lime']:
     exps1 = [x[0] for x in pickled_map['exps1'][explainer]]
     exps2 = [x[0] for x in pickled_map['exps2'][explainer]]
   else:
@@ -93,7 +93,7 @@ def random_pick(pickled_map, explainer, B):
 def find_untrustworthy(explainer, exps, instances, untrustworthy):
   found = set()
   for i in instances:
-    if explainer in ['local', 'local2', 'parzen', 'parzen_all']:
+    if explainer in ['lime', 'parzen']:
       exp, mean = exps[i]
     else:
       exp = exps[i]
@@ -105,20 +105,14 @@ def tally_mistrust(explainer, exps, predict_probas, untrustworthy):
   trust_fn_all = lambda exp, unt: len([x[0] for x in exp if x[0] in unt]) == 0
   mistrust = 0
   for i in range(len(exps)):
-    if explainer in ['local', 'local2', 'parzen']:
+    if explainer in ['lime', 'parzen']:
       exp, mean = exps[i]
-      if explainer == 'local2':
-        prev_tot = predict_probas[i]
-      elif explainer == 'local':
+      if explainer == 'lime':
         prev_tot = sum([x[1] for x in exp]) + mean
       elif explainer == 'parzen':
         prev_tot = mean
       tot = prev_tot - sum([x[1] for x in exp if x[0] in untrustworthy])
       if not trust_fn(tot, prev_tot):
-        mistrust += 1
-    elif explainer == 'parzen_all':
-      exp, mean = exps[i]
-      if not trust_fn_all(exp, untrustworthy):
         mistrust += 1
     else:
       exp = exps[i]
@@ -139,7 +133,7 @@ def main():
   args = parser.parse_args()
   dataset = args.dataset
   got_right = lambda test1, test2, mistrust1, mistrust2: mistrust1 < mistrust2 if test1 > test2 else mistrust1 > mistrust2
-  names = ['local', 'parzen', 'random', 'greedy']
+  names = ['lime', 'parzen', 'random', 'greedy']
   num_exps = 0
   B = args.num_instances
   rounds = 1
@@ -163,10 +157,10 @@ def main():
       test2 = pickled_map['test_acc2']
       untrustworthy = pickled_map['untrustworthy']
       for explainer in names:
-        if explainer.startswith('local'):
-          pick1, pick2 = pick_function(pickled_map, 'local', B)
-          exps1 = pickled_map['exps1']['local']
-          exps2 = pickled_map['exps2']['local']
+        if explainer.startswith('lime'):
+          pick1, pick2 = pick_function(pickled_map, 'lime', B)
+          exps1 = pickled_map['exps1']['lime']
+          exps2 = pickled_map['exps2']['lime']
         elif explainer.startswith('parzen'):
           pick1, pick2 = pick_function(pickled_map, 'parzen', B)
           exps1 = pickled_map['exps1']['parzen']
