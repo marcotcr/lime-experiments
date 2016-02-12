@@ -3,6 +3,7 @@ import copy
 sys.path.append('..')
 import argparse
 import explainers
+import parzen_windows
 import numpy as np
 import pickle
 import sklearn
@@ -125,6 +126,18 @@ def main():
     rho = 25
     kernel = lambda d: np.sqrt(np.exp(-(d**2) / rho ** 2))
     explainer = explainers.GeneralizedLocalExplainer(kernel, explainers.data_labels_distances_mapping_text, num_samples=15000, return_mean=False, verbose=False, return_mapped=True)
+    explain_fn = explainer.explain_instance
+  elif args.explainer == 'parzen':
+    sigmas = {'multi_polarity_electronics': {'tree': 0.5,
+    'l1logreg': 1},
+    'multi_polarity_kitchen': {'tree': 0.75, 'l1logreg': 2.0},
+    'multi_polarity_dvd': {'tree': 8.0, 'l1logreg': 1},
+    'multi_polarity_books': {'tree': 2.0, 'l1logreg': 2.0}}
+
+    explainer = parzen_windows.ParzenWindowClassifier()
+    cv_preds = sklearn.cross_validation.cross_val_predict(evaluator.classifiers[dataset][algorithm], evaluator.train_vectors[dataset], evaluator.train_labels[dataset])
+    explainer.fit(evaluator.train_vectors[dataset], cv_preds)
+    explainer.sigma = sigmas[dataset][algorithm]
     explain_fn = explainer.explain_instance
   elif args.explainer == 'greedy':
     explain_fn = explainers.explain_greedy

@@ -50,8 +50,6 @@ def most_important_word(classifier, v, class_):
     v[0,i] = 0
     pred = classifier.predict_proba(v)[0][class_]
     change = orig - pred
-    # TODO: Test this
-    #change = np.abs(orig - pred)
     if change > max_change:
       max_change = change
       max_index = i
@@ -84,8 +82,6 @@ def most_important_word_martens(predict_fn, v, class_):
     v[0,i] = 0
     pred = predict_fn(v)[0,class_]
     change = orig - pred
-    # TODO: Test this
-    #change = np.abs(orig - pred)
     if change > max_change:
       max_change = change
       max_index = i
@@ -139,6 +135,7 @@ def data_labels_distances_mapping_text(x, classifier_fn, num_samples):
     distances = distance_fn(sparse_inverse)
     return data, labels, distances, mapping
 
+# This is LIME
 class GeneralizedLocalExplainer:
   def __init__(self,
                kernel_fn,

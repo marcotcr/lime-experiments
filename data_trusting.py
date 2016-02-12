@@ -12,6 +12,7 @@ from sklearn import tree
 from sklearn import neighbors
 import pickle
 import explainers
+import parzen_windows
 import embedding_forest
 from load_datasets import *
 import argparse
@@ -35,12 +36,9 @@ def main():
   parser = argparse.ArgumentParser(description='Evaluate some explanations')
   parser.add_argument('--dataset', '-d', type=str, required=True,help='dataset name')
   parser.add_argument('--algorithm', '-a', type=str, required=True, help='algorithm_name')
-  parser.add_argument('--output_folder', '-o', type=str, required=True, help='output folder')
   parser.add_argument('--num_features', '-k', type=int, required=True, help='num features')
   parser.add_argument('--percent_untrustworthy',  '-u', type=float, required=True, help='percentage of untrustworthy features. like 0.1')
   parser.add_argument('--num_rounds', '-r', type=int, required=True, help='num rounds')
-  parser.add_argument('--save_exps', '-s', action='store_true', help='Save pickled explanations')
-  parser.add_argument('--load_exps', '-l', action='store_true', help='Load pickled explanations')
   args = parser.parse_args()
   dataset = args.dataset
   train_data, train_labels, test_data, test_labels, class_names = LoadDataset(dataset)
@@ -67,30 +65,41 @@ def main():
   kernel = lambda d: np.sqrt(np.exp(-(d**2) / rho ** 2))
   LIME = explainers.GeneralizedLocalExplainer(kernel, explainers.data_labels_distances_mapping_text, num_samples=15000, return_mean=True, verbose=False, return_mapped=True)
 
+  parzen = parzen_windows.ParzenWindowClassifier()
+  cv_preds = sklearn.cross_validation.cross_val_predict(classifier, train_vectors, train_labels, cv=5)
+  parzen.fit(train_vectors, cv_preds)
+  sigmas = {'multi_polarity_electronics': {'neighbors': 0.75, 'svm': 10.0, 'tree': 0.5,
+  'logreg': 0.5, 'random_forest': 0.5, 'embforest': 0.75},
+  'multi_polarity_kitchen': {'neighbors': 1.0, 'svm': 6.0, 'tree': 0.75,
+  'logreg': 0.25, 'random_forest': 6.0, 'embforest': 1.0},
+  'multi_polarity_dvd': {'neighbors': 0.5, 'svm': 0.75, 'tree': 8.0, 'logreg':
+  0.75, 'random_forest': 0.5, 'embforest': 5.0}, 'multi_polarity_books':
+  {'neighbors': 0.5, 'svm': 7.0, 'tree': 2.0, 'logreg': 1.0, 'random_forest':
+  1.0, 'embforest': 3.0}}
+  parzen.sigma = sigmas[dataset][args.algorithm]
+
   random = explainers.RandomExplainer()
   exps = {}
-  explainer_names = ['LIME', 'random', 'greedy']
+  explainer_names = ['LIME', 'random', 'greedy', 'parzen']
   for expl in explainer_names:
     exps[expl] = []
 
   predictions = classifier.predict(test_vectors)
   predict_probas = classifier.predict_proba(test_vectors)[:,1]
-  if args.load_exps:
-    exps = pickle.load(open(os.path.join(args.output_folder, 'explanations_%s_%s_%s.pickle' % (dataset, args.algorithm, args.num_features))))
-  else:
-    for i in range(test_vectors.shape[0]):
-      print i
-      sys.stdout.flush()
-      exp, mean = LIME.explain_instance(test_vectors[i], 1, classifier.predict_proba, args.num_features)
-      exps['LIME'].append((exp, mean))
+  for i in range(test_vectors.shape[0]):
+    print i
+    sys.stdout.flush()
+    exp, mean = LIME.explain_instance(test_vectors[i], 1, classifier.predict_proba, args.num_features)
+    exps['LIME'].append((exp, mean))
+    exp = parzen.explain_instance(test_vectors[i], 1, classifier.predict_proba, args.num_features, None) 
+    mean = parzen.predict_proba(test_vectors[i])[1]
+    exps['parzen'].append((exp, mean))
 
-      exp = random.explain_instance(test_vectors[i], 1, None, args.num_features, None)
-      exps['random'].append(exp)
+    exp = random.explain_instance(test_vectors[i], 1, None, args.num_features, None)
+    exps['random'].append(exp)
 
-      exp = explainers.explain_greedy_martens(test_vectors[i], predictions[i], classifier.predict_proba, args.num_features)
-      exps['greedy'].append(exp)
-    if args.save_exps:
-      pickle.dump(exps, open(os.path.join(args.output_folder, 'explanations_%s_%s_%s.pickle' % (dataset, args.algorithm, args.num_features)), 'w'))
+    exp = explainers.explain_greedy_martens(test_vectors[i], predictions[i], classifier.predict_proba, args.num_features)
+    exps['greedy'].append(exp)
 
   precision = {}
   recall = {}
@@ -118,6 +127,10 @@ def main():
       tot = prev_tot2 - sum([x[1] for x in exp if x[0] in untrustworthy])
       trust['LIME'].add(i) if trust_fn(tot, prev_tot) else mistrust['LIME'].add(i)
 
+      exp, mean = exps['parzen'][i]
+      prev_tot = mean
+      tot = mean - sum([x[1] for x in exp if x[0] in untrustworthy])
+      trust['parzen'].add(i) if trust_fn(tot, prev_tot) else mistrust['parzen'].add(i)
       exp = exps['random'][i]
       trust['random'].add(i) if trust_fn_all(exp, untrustworthy) else mistrust['random'].add(i)
 
