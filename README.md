@@ -1,3 +1,6 @@
+Running the commands below should be enough to get all of the results. You need python, sklearn, numpy, scipy.
+If we forgot something, please email the first author.
+
 ## Experiment in section 5.2:
 - DATASET -> 'multi_polarity_books', 'multi_polarity_kitchen', 'multi_polarity_dvd', 'multi_polarity_kitchen'
 - ALGORITHM -> 'l1logreg', 'tree'
@@ -9,7 +12,7 @@
 - DATASET -> 'multi_polarity_books', 'multi_polarity_kitchen', 'multi_polarity_dvd', 'multi_polarity_kitchen'
 - ALGORITHM -> 'logreg', 'random_forest', 'svm', 'tree' or 'embforest', although you would need to set up word2vec for embforest
 
-        python2.7 data_trusting.py -d DATASET -a ALGORITHM -k 10 -u .25 -r NUM_ROUNDS
+        python data_trusting.py -d DATASET -a ALGORITHM -k 10 -u .25 -r NUM_ROUNDS
 
 ## Experiment in section 5.4:
 - NUM_ROUNDS -> Desired number of rounds
