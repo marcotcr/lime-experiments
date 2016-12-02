@@ -31,3 +31,6 @@ Run the following with the desired number of rounds:
 
 ## Religion dataset:
 Available [here](https://github.com/marcotcr/lime-experiments/blob/master/religion_dataset.tar.gz)
+
+## Multi-polarity datasets:
+I got them from [here](https://www.cs.jhu.edu/~mdredze/datasets/sentiment/)
