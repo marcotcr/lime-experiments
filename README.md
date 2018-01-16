@@ -2,7 +2,7 @@ This repository contains the code to run the experiments present in [this paper]
 
 Running the commands below should be enough to get all of the results. You need specific versions python, sklearn, numpy, scipy. Install requirements in a virtualenv using:
 
-`pip install -r requirements`
+`pip install -r requirements.txt`
 
 If we forgot something, please email the first author. 
 
