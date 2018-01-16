@@ -1,7 +1,10 @@
 This repository contains the code to run the experiments present in [this paper](http://arxiv.org/abs/1602.04938). The code here is frozen to what it was when we originally wrote the paper. If you're interested in using LIME, check out [this repository](https://github.com/marcotcr/lime), where we have packaged it up, improved the code quality, added visualizations and other improvements.
 
-Running the commands below should be enough to get all of the results. You need python, sklearn, numpy, scipy.
-If we forgot something, please email the first author.
+Running the commands below should be enough to get all of the results. You need specific versions python, sklearn, numpy, scipy. Install requirements in a virtualenv using:
+
+`pip install -r requirements`
+
+If we forgot something, please email the first author. 
 
 ## Experiment in section 5.2:
 - DATASET -> 'multi_polarity_books', 'multi_polarity_kitchen', 'multi_polarity_dvd', 'multi_polarity_kitchen'
