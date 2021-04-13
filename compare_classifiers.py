@@ -186,9 +186,9 @@ def main():
       #print filez
     for name in right:
       accuracy[name].append(np.mean(right[name]))
-  print 'Mean accuracy:'
+  print('Mean accuracy:')
   for name in right:
-    print name, np.mean(accuracy[name])
+    print(name, np.mean(accuracy[name]))
 
 
 if __name__ == "__main__":

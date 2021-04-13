@@ -43,14 +43,14 @@ class ExplanationEvaluator:
           self.classifiers[dataset]['l1logreg'].fit(self.train_vectors[dataset], self.train_labels[dataset])
           lengths = [len(x.nonzero()[0]) for x in self.classifiers[dataset]['l1logreg'].transform(self.train_vectors[dataset])]
           if np.max(lengths) <= 10:
-            #print 'Logreg for ', dataset, ' has mean length',  np.mean(lengths), 'with C=', c
-            #print 'And max length = ', np.max(lengths)
+            #print('Logreg for ', dataset, ' has mean length',  np.mean(lengths), 'with C=', c)
+            #print('And max length = ', np.max(lengths))
             break
       if classifier == 'tree':
         self.classifiers[dataset]['tree'] = tree.DecisionTreeClassifier(random_state=1)
         self.classifiers[dataset]['tree'].fit(self.train_vectors[dataset], self.train_labels[dataset])
         lengths = [len(get_tree_explanation(self.classifiers[dataset]['tree'], self.train_vectors[dataset][i])) for i in range(self.train_vectors[dataset].shape[0])]
-        #print 'Tree for ', dataset, ' has mean length',  np.mean(lengths)
+        #print('Tree for ', dataset, ' has mean length',  np.mean(lengths))
   def load_datasets(self, dataset_names):
     self.train_data = {}
     self.train_labels = {}
@@ -63,7 +63,7 @@ class ExplanationEvaluator:
     self.train_vectors = {}
     self.test_vectors = {}
     self.inverse_vocabulary = {}
-    print 'Vectorizing...', 
+    print('Vectorizing...')
     for d in self.train_data:
       self.vectorizer[d] = CountVectorizer(lowercase=False, binary=True)
       self.train_vectors[d] = self.vectorizer[d].fit_transform(self.train_data[d])
@@ -71,13 +71,13 @@ class ExplanationEvaluator:
       terms = np.array(list(self.vectorizer[d].vocabulary_.keys()))
       indices = np.array(list(self.vectorizer[d].vocabulary_.values()))
       self.inverse_vocabulary[d] = terms[np.argsort(indices)]
-    print 'Done'
-    print 'Training...'
+    print('Done')
+    print('Training...')
     for d in self.train_data:
-      print d
+      print(d)
       self.init_classifiers(d)
-    print 'Done'
-    print
+    print('Done')
+    print()
   def measure_explanation_hability(self, explain_fn, max_examples=None):
     """Asks for explanations for all predictions in the train and test set, with
     budget = size of explanation. Returns two maps (train_results,
@@ -88,13 +88,13 @@ class ExplanationEvaluator:
     for d in self.train_data:
       train_results[d] = {}
       test_results[d] = {}
-      print 'Dataset:', d
+      print('Dataset:', d)
       for c in self.classifiers[d]:
         train_results[d][c] = []
         test_results[d][c] = []
         if c == 'l1logreg':
           c_features = self.classifiers[d][c].coef_.nonzero()[1]
-        print 'classifier:', c 
+        print('classifier:', c)
         for i in range(len(self.test_data[d])):
           if c == 'l1logreg':
             true_features = set([x for x in self.test_vectors[d][i].nonzero()[1] if x in c_features])
@@ -145,7 +145,7 @@ def main():
     explainer = explainers.RandomExplainer()
     explain_fn = explainer.explain_instance
   train_results, test_results = evaluator.measure_explanation_hability(explain_fn)
-  print 'Average test: ', np.mean(test_results[dataset][algorithm])
+  print('Average test: ', np.mean(test_results[dataset][algorithm]))
   out = {'train': train_results[dataset][algorithm], 'test' : test_results[dataset][algorithm]}
 
 if __name__ == "__main__":

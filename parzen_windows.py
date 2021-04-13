@@ -35,7 +35,7 @@ class ParzenWindowClassifier:
         #pr = np.array([self.kernel(z, self.sigma) for z in b])
         pr = self.kernel(b, self.sigma)
         prob = sum(pr[self.ones]) / sum(pr)
-        #print prob
+        #print(prob)
         return int(prob > .5)
     def predict_proba(self, x):
         b = sp.sparse.csr_matrix(x - self.X)
@@ -53,12 +53,12 @@ class ParzenWindowClassifier:
             for i in range(cv_X.shape[0]):
               preds.append(self.predict(cv_X[i]))
             mistakes = sum(cv_y != np.array(preds))
-            print sigma, mistakes
+            print(sigma, mistakes)
             sys.stdout.flush()
             if mistakes < best_mistakes:
                 best_mistakes = mistakes
                 best_sigma = sigma
-        print 'Best sigma achieves ', best_mistakes, 'mistakes. Disagreement=', float(best_mistakes) / cv_X.shape[0]
+        print('Best sigma achieves ', best_mistakes, 'mistakes. Disagreement=', float(best_mistakes) / cv_X.shape[0])
         self.sigma = best_sigma
     def explain_instance(self, x, _, __,num_features,___=None):
         minus = self.X - x
@@ -90,21 +90,21 @@ def main():
   y_v = train_labels[indices[:num_train]]
   train_cv = train_vectors[indices[num_train:]]
   y_cv = train_labels[indices[num_train:]]
-  print 'train_size', train_v.shape[0]
-  print 'cv_size', train_cv.shape[0]
+  print('train_size', train_v.shape[0])
+  print('cv_size', train_cv.shape[0])
   classifier = get_classifier(args.algorithm, vectorizer)
   classifier.fit(train_v, y_v)
-  print 'train accuracy:',
-  print accuracy_score(y_v, classifier.predict(train_v))
-  print 'cv accuracy:',
-  print accuracy_score(y_cv, classifier.predict(train_cv))
+  print('train accuracy:')
+  print(accuracy_score(y_v, classifier.predict(train_v)))
+  print('cv accuracy:')
+  print(accuracy_score(y_cv, classifier.predict(train_cv)))
   yhat_v = classifier.predict(train_v)
   yhat_cv = classifier.predict(train_cv)
   p = ParzenWindowClassifier()
   p.fit(train_v, yhat_v)
   p.find_sigma([0.1, .25, .5, .75, 1,2,3,4,5,6,7,8,9,10], train_cv, yhat_cv)
-  print 'Best sigma:',
-  print p.sigma
+  print('Best sigma:')
+  print(p.sigma)
 
 if __name__ == "__main__":
     main()

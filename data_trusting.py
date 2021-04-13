@@ -87,7 +87,7 @@ def main():
   predictions = classifier.predict(test_vectors)
   predict_probas = classifier.predict_proba(test_vectors)[:,1]
   for i in range(test_vectors.shape[0]):
-    print i
+    print(i)
     sys.stdout.flush()
     exp, mean = LIME.explain_instance(test_vectors[i], 1, classifier.predict_proba, args.num_features)
     exps['LIME'].append((exp, mean))
@@ -113,7 +113,7 @@ def main():
     t = test_vectors.copy()
     t[:, untrustworthy] = 0
     mistrust_idx = np.argwhere(classifier.predict(t) != classifier.predict(test_vectors)).flatten()
-    print 'Number of suspect predictions', len(mistrust_idx)
+    print(f'Number of suspect predictions: {len(mistrust_idx)}')
     shouldnt_trust = set(mistrust_idx)
     flipped_preds_size.append(len(shouldnt_trust))
     mistrust = collections.defaultdict(lambda:set())
@@ -157,17 +157,17 @@ def main():
       f1z = 2 * (prec * rec) / (prec + rec) if (prec and rec) else 0
       f1[expl].append(f1z)
 
-  print 'Average number of flipped predictions:', np.mean(flipped_preds_size), '+-', np.std(flipped_preds_size)
-  print 'Precision:'
+  print('Average number of flipped predictions:', np.mean(flipped_preds_size), '+-', np.std(flipped_preds_size))
+  print('Precision:')
   for expl in explainer_names:
-    print expl, np.mean(precision[expl]), '+-', np.std(precision[expl]), 'pvalue', sp.stats.ttest_ind(precision[expl], precision['LIME'])[1].round(4)
-  print
-  print 'Recall:'
+    print(expl, np.mean(precision[expl]), '+-', np.std(precision[expl]), 'pvalue', sp.stats.ttest_ind(precision[expl], precision['LIME'])[1].round(4))
+  print()
+  print('Recall:')
   for expl in explainer_names:
-    print expl, np.mean(recall[expl]), '+-', np.std(recall[expl]), 'pvalue', sp.stats.ttest_ind(recall[expl], recall['LIME'])[1].round(4)
-  print 
-  print 'F1:'
+    print(expl, np.mean(recall[expl]), '+-', np.std(recall[expl]), 'pvalue', sp.stats.ttest_ind(recall[expl], recall['LIME'])[1].round(4))
+  print()
+  print('F1:')
   for expl in explainer_names:
-    print expl, np.mean(f1[expl]), '+-', np.std(f1[expl]), 'pvalue', sp.stats.ttest_ind(f1[expl], f1['LIME'])[1].round(4)
+    print(expl, np.mean(f1[expl]), '+-', np.std(f1[expl]), 'pvalue', sp.stats.ttest_ind(f1[expl], f1['LIME'])[1].round(4))
 if __name__ == "__main__":
     main()

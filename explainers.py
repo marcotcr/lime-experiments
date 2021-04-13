@@ -182,7 +182,7 @@ class GeneralizedLocalExplainer:
       mean = self.mean
     shifted_labels = labels[:, label] - mean
     if self.verbose:
-      print 'mean', mean
+      print('mean', mean)
     weighted_labels = shifted_labels * weights
     used_features = range(weighted_data.shape[1])
     nonzero = used_features
@@ -208,7 +208,7 @@ class GeneralizedLocalExplainer:
     debiased_model = linear_model.Ridge(alpha=0, fit_intercept=False)
     debiased_model.fit(weighted_data[:, used_features], weighted_labels)
     if self.verbose:
-      print 'Prediction_local', debiased_model.predict(data[0, used_features].reshape(1, -1)) + mean, 'Right:', labels[0, label]
+      print('Prediction_local', debiased_model.predict(data[0, used_features].reshape(1, -1)) + mean, 'Right:', labels[0, label])
     if self.return_mean:
       return sorted(zip(used_features,
                   debiased_model.coef_),
